@@ -58,7 +58,7 @@ int insertBeforeCurr(Playlist* listPtr, char trackName[], int trackLength)
 	//input validation check
 	if (trackName == NULL || trackLength < 1)
 	{
-		return INVALID_INPUT_PARAMETER
+		return INVALID_INPUT_PARAMETER;
 	}
 
 	//initialise fields
@@ -68,11 +68,30 @@ int insertBeforeCurr(Playlist* listPtr, char trackName[], int trackLength)
 	newTrack->next = NULL;
 
 	//check to see if playlist is empty.
-	if (listPtr->head == NULL && listPtr->curr == NULL && listPtr->prev == NULL)
+	if (listPtr->head == NULL && listPtr->curr == NULL && listPtr->tail == NULL)
 	{
-		/* code */
+		listPtr->head = newTrack;
+		listPtr->curr = newTrack;
+		listPtr->tail = newTrack;
+	}else
+	{
+		//case 1 check (current is at the head of the list)
+		if (listPtr->curr == listPtr->head && listPtr->curr->prev == NULL)
+		{
+			newTrack->next = listPtr->curr;
+			listPtr->curr->prev = newTrack;
+			listPtr->head = newTrack;
+		}
+		if(listPtr->curr != listPtr->head && listPtr->curr->prev != NULL)
+		{
+			newTrack->next = listPtr->curr;
+			newTrack->prev = listPtr->curr->prev;
+			listPtr->curr->prev->next = newTrack;
+			listPtr->curr->prev = newTrack;
+		}
 	}
 
+	return SUCCESS;
 }
 
 
@@ -118,6 +137,28 @@ int main(int argc, char const *argv[])
 	else
 	{
 		printf("List initialised successfully\n");
+	}
+	printf("\n");
+
+	result = insertBeforeCurr(listPtr, "Katie is cute", 120);
+	if (result != SUCCESS)
+	{
+		printf("An error occurred when attempting to add before current\n");
+	}
+	else
+	{
+		printf("added to list successfully\n");
+	}
+	printf("\n");
+
+	result = insertBeforeCurr(listPtr, "Bound 2", 120);
+	if (result != SUCCESS)
+	{
+		printf("An error occurred when attempting to add before current\n");
+	}
+	else
+	{
+		printf("added to list successfully\n");
 	}
 	printf("\n");
 
