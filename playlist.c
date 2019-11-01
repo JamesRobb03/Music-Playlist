@@ -151,8 +151,39 @@ int insertAfterCurr(Playlist* listPtr, char trackName[], int trackLength)
 	return SUCCESS;	
 }
 
+int skipNext(Playlist* listPtr)
+{
+	if (listPtr == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (listPtr->head == NULL || listPtr->curr == NULL || listPtr->curr->next == NULL)
+	{
+		return INVALID_LIST_OPERATION;
+	}
 
+	listPtr->curr = listPtr->curr->next;
+	return SUCCESS;
+}
 
+int skipPrev(Playlist* listPtr)
+{
+	//check if queue is valid
+	if (listPtr == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+
+	//checking to see if list is empty
+	if (listPtr->head == NULL || listPtr->curr == NULL || listPtr->curr->prev == NULL)
+	{
+		return INVALID_LIST_OPERATION;
+	}
+
+	listPtr->curr = listPtr->curr->prev;
+	return SUCCESS;
+
+}
 
 
 
