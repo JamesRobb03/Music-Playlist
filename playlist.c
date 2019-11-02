@@ -247,23 +247,29 @@ int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 		//change head to current track
 		listPtr->curr = listPtr->head->next;
 		listPtr->head = listPtr->curr;
+		listPtr->head->prev = NULL;
 	}
 	//if the current track is the tail of the playlist
 	else if (listPtr->tail == listPtr->curr)
 	{
 		listPtr->curr = listPtr->tail->prev;
 		listPtr->tail = listPtr->curr;
+		listPtr->tail->next = NULL;
 	}
 	//if the track is not the head or the tail
 	else
 	{
 		if (moveForward == 1)
 		{
-			listPtr->curr = listPtr->curr->next;
+			pToRemove->prev->next = pToRemove->next;
+			pToRemove->next->prev = pToRemove->prev;
+			listPtr->curr = pToRemove->next;
 		}
 		else
 		{
-			listPtr->curr = listPtr->curr->prev;
+			pToRemove->prev->next = pToRemove->next;
+			pToRemove->next->prev = pToRemove->prev;
+			listPtr->curr = pToRemove->prev;
 		}
 	}
 
