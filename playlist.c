@@ -284,8 +284,27 @@ int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 
 int clearPlaylist(Playlist* listPtr)
 {
-	(void)listPtr;
-	return NOT_IMPLEMENTED;
+	if (listPtr == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+
+	while(listPtr->head != NULL)
+	{
+		MP3Track *currentHead = listPtr->head;
+
+		listPtr->head = listPtr->head->next;
+
+		currentHead->next = NULL;
+		currentHead->prev = NULL;
+		currentHead->trackLength = 0;
+		strcpy(currentHead->trackName, "");
+		free(currentHead);
+	}
+
+	free(listPtr);
+
+	return SUCCESS;
 }
 
 int savePlaylist(Playlist *listPtr, char filename[])
