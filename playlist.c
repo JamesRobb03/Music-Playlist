@@ -209,77 +209,69 @@ int getCurrentTrack(Playlist* listPtr, MP3Track *pTrack)
 	return SUCCESS;
 }
 
-
-
-
-
-
-
-
-
-//OWN TESTING PURPOSES DELETE LATER
-int mallocFail = 0;
-void* myMalloc(size_t size) {
-	if (mallocFail) { return NULL; }
-	else { return malloc(size); }
-}
-
-int main(int argc, char const *argv[])
+int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 {
-	int result;
-
-	// a variable to store an MP3 track popped from the list
-	MP3Track track;
-
-	// a pointer to our doubly-linked list
-	Playlist *listPtr = NULL;
-
-	// initialise the list - passing the address of our
-	// list pointer as an input so it can be modified 
-	// to point to the memory allocated for the list
-	result = createPlaylist(&listPtr);
-	if (result != SUCCESS)
+	if (listPtr == NULL)
 	{
-		printf("An error occurred when attempting to initialise the list\n");
+		return INVALID_INPUT_PARAMETER;
 	}
+	if (pTrack == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (listPtr->curr == NULL)
+	{
+		return INVALID_LIST_OPERATION;
+	}
+
+	//store track at current position in playlist
+	strcpy(pTrack->trackName, listPtr->curr->trackName);
+	pTrack->trackLength = listPtr->curr->trackLength;
+	pTrack->prev = listPtr->curr->prev;
+	pTrack->next = listPtr->curr->next;
+
+	//create a temp pointer to track at current position in playlist
+	MP3Track *pToRemove = listPtr->curr;
+
+	//if there is only one track within the playlist
+	if (listPtr->head == listPtr->tail)
+	{
+		listPtr->head = NULL;
+		listPtr->tail = NULL;
+		listPtr->curr = NULL;
+	}
+	//if the current track is the head of the playlist
+	else if (listPtr->head == listPtr->curr)
+	{
+		//change current to next track in playlist
+		//change head to current track
+		listPtr->curr = listPtr->head->next;
+		listPtr->head = listPtr->curr;
+	}
+	//if the current track is the tail of the playlist
+	else if (listPtr->tail == listPtr->curr)
+	{
+		listPtr->curr = listPtr->tail->prev;
+		listPtr->tail = listPtr->curr;
+	}
+	//if the track is not the head or the tail
 	else
 	{
-		printf("List initialised successfully\n");
+		if (moveForward == 1)
+		{
+			listPtr->curr = listPtr->curr->next;
+		}
+		else
+		{
+			listPtr->curr = listPtr->curr->prev;
+		}
 	}
-	printf("\n");
 
-	result = insertBeforeCurr(listPtr, "Katie is cute", 120);
-	if (result != SUCCESS)
-	{
-		printf("An error occurred when attempting to add before current\n");
-	}
-	else
-	{
-		printf("added to list successfully\n");
-	}
-	printf("\n");
+	pToRemove->next = NULL;
+	pToRemove->prev = NULL;
+	pToRemove->trackLength = 0;
+	strcpy(pToRemove->trackName, "");
+	free(pToRemove);
 
-	result = insertBeforeCurr(listPtr, "Bound 2", 120);
-	if (result != SUCCESS)
-	{
-		printf("An error occurred when attempting to add before current\n");
-	}
-	else
-	{
-		printf("added to list successfully\n");
-	}
-	printf("\n");
-
-	result = insertAfterCurr(listPtr, "Bound 1", 90);
-	if (result != SUCCESS)
-	{
-		printf("An error occurred when attempting to add after current\n");
-	}
-	else
-	{
-		printf("added to list successfully\n");
-	}
-	printf("\n");
-
-	return 0;
+	return SUCCESS;
 }
