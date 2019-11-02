@@ -275,3 +275,23 @@ int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 
 	return SUCCESS;
 }
+
+int clearPlaylist(Playlist* listPtr)
+{
+	(void)listPtr;
+	return NOT_IMPLEMENTED;
+}
+
+int savePlaylist(Playlist *listPtr, char filename[])
+{
+	(void)listPtr;
+	(void)filename;
+	return NOT_IMPLEMENTED;
+}
+
+int loadPlaylist(Playlist **listPtr, char filename[])
+{
+	(void)*listPtr;
+	(void)filename;
+	return NOT_IMPLEMENTED;
+}
