@@ -185,6 +185,29 @@ int skipPrev(Playlist* listPtr)
 
 }
 
+/* Get the data for the current track in the playlist */
+int getCurrentTrack(Playlist* listPtr, MP3Track *pTrack)
+{
+	if (listPtr == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (pTrack == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (listPtr->curr == NULL)
+	{
+		return INVALID_LIST_OPERATION;
+	}
+
+	strcpy(pTrack->trackName, listPtr->curr->trackName);
+	pTrack->trackLength = listPtr->curr->trackLength;
+	pTrack->prev = listPtr->curr->prev;
+	pTrack->next = listPtr->curr->next;
+
+	return SUCCESS;
+}
 
 
 
