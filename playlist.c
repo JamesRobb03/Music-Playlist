@@ -69,27 +69,24 @@ int insertBeforeCurr(Playlist* listPtr, char trackName[], int trackLength)
 	newTrack->next = NULL;
 
 	//check to see if playlist is empty.
-	if (listPtr->head == NULL && listPtr->curr == NULL && listPtr->tail == NULL)
+	if (listPtr->curr == NULL)
 	{
 		listPtr->head = newTrack;
 		listPtr->curr = newTrack;
 		listPtr->tail = newTrack;
-	}else
+	}
+	else if (listPtr->curr == listPtr->head)
 	{
-		//case 1 check (current is at the head of the list)
-		if (listPtr->curr == listPtr->head && listPtr->curr->prev == NULL)
-		{
-			newTrack->next = listPtr->curr;
-			listPtr->curr->prev = newTrack;
-			listPtr->head = newTrack;
-		}
-		if(listPtr->curr != listPtr->head && listPtr->curr->prev != NULL)
-		{
-			newTrack->next = listPtr->curr;
-			newTrack->prev = listPtr->curr->prev;
-			listPtr->curr->prev->next = newTrack;
-			listPtr->curr->prev = newTrack;
-		}
+		newTrack->next = listPtr->curr;
+		listPtr->curr->prev = newTrack;
+		listPtr->head = newTrack;
+	}
+	else
+	{
+		newTrack->next = listPtr->curr;
+		newTrack->prev = listPtr->curr->prev;
+		listPtr->curr->prev->next = newTrack;
+		listPtr->curr->prev = newTrack;
 	}
 
 	return SUCCESS;
@@ -125,20 +122,20 @@ int insertAfterCurr(Playlist* listPtr, char trackName[], int trackLength)
 	newTrack->next = NULL;
 
 	//check to see if playlist is empty.
-	if (listPtr->head == NULL && listPtr->curr == NULL && listPtr->tail == NULL)
+	if (listPtr->curr == NULL)
 	{
 		listPtr->head = newTrack;
 		listPtr->curr = newTrack;
 		listPtr->tail = newTrack;
 	}else
 	{
-		if (listPtr->curr == listPtr->tail && listPtr->curr->next == NULL)
+		if (listPtr->curr == listPtr->tail)
 		{
 			newTrack->prev = listPtr->curr;
 			listPtr->curr->next = newTrack;
 			listPtr->tail = newTrack;
 		}
-		if (listPtr->curr->next != NULL)
+		else
 		{
 			newTrack->prev = listPtr->curr;
 			newTrack->next = listPtr->curr->next;
@@ -307,11 +304,35 @@ int clearPlaylist(Playlist* listPtr)
 	return SUCCESS;
 }
 
+//add parameter validation
 int savePlaylist(Playlist *listPtr, char filename[])
 {
-	(void)listPtr;
-	(void)filename;
-	return NOT_IMPLEMENTED;
+	if (listPtr == NULL)
+		INVALID_INPUT_PARAMETER;
+	if (filename == NULL)
+		INVALID_INPUT_PARAMETER;
+
+	FILE *fp;
+	fp = fopen(filename, "w");
+	char delimiter = '#';
+	char newLine = '\n';
+
+	if (fp != NULL) 
+	{
+		MP3Track *nextTrack = listPtr->head;
+		while (nextTrack != NULL)
+		{
+			fputs(nextTrack->trackName, fp);
+			fputc(delimiter, fp);
+			fprintf(fp, "%d" ,nextTrack->trackLength);
+			fputc(delimiter, fp);
+			fputc(newLine, fp);
+
+			nextTrack = nextTrack->next;
+		}
+		fclose(fp);
+	}
+	return SUCCESS;
 }
 
 int loadPlaylist(Playlist **listPtr, char filename[])
@@ -320,3 +341,4 @@ int loadPlaylist(Playlist **listPtr, char filename[])
 	(void)filename;
 	return NOT_IMPLEMENTED;
 }
+
