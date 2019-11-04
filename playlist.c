@@ -61,6 +61,10 @@ int insertBeforeCurr(Playlist* listPtr, char trackName[], int trackLength)
 	{
 		return INVALID_INPUT_PARAMETER;
 	}
+	if (strlen(trackName)<1 || strlen(trackName)>50)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
 
 	//initialise fields
 	strcpy(newTrack->trackName, trackName);
@@ -91,7 +95,7 @@ int insertBeforeCurr(Playlist* listPtr, char trackName[], int trackLength)
 
 	return SUCCESS;
 }
-
+//function which inserts a MP3Track into the playlist after the current position.
 int insertAfterCurr(Playlist* listPtr, char trackName[], int trackLength)
 {
 	//check to see if pointer is pointing to a valid list
@@ -111,6 +115,10 @@ int insertAfterCurr(Playlist* listPtr, char trackName[], int trackLength)
 
 	//input validation check
 	if (trackName == NULL || trackLength < 1)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (strlen(trackName)<1 || strlen(trackName)>50)
 	{
 		return INVALID_INPUT_PARAMETER;
 	}
@@ -147,7 +155,7 @@ int insertAfterCurr(Playlist* listPtr, char trackName[], int trackLength)
 
 	return SUCCESS;	
 }
-
+//moves current forward one track
 int skipNext(Playlist* listPtr)
 {
 	if (listPtr == NULL)
@@ -162,7 +170,7 @@ int skipNext(Playlist* listPtr)
 	listPtr->curr = listPtr->curr->next;
 	return SUCCESS;
 }
-
+//moves current back one track
 int skipPrev(Playlist* listPtr)
 {
 	//check if queue is valid
@@ -206,6 +214,7 @@ int getCurrentTrack(Playlist* listPtr, MP3Track *pTrack)
 	return SUCCESS;
 }
 
+//function which removes the MP3Track at the current position in the playlist
 int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 {
 	if (listPtr == NULL)
@@ -279,6 +288,7 @@ int removeAtCurr(Playlist* listPtr, MP3Track *pTrack, int moveForward)
 	return SUCCESS;
 }
 
+//function which clears the playlist
 int clearPlaylist(Playlist* listPtr)
 {
 	if (listPtr == NULL)
@@ -304,16 +314,24 @@ int clearPlaylist(Playlist* listPtr)
 	return SUCCESS;
 }
 
-//add parameter validation
+//Function which writes out a playlist to a file.
 int savePlaylist(Playlist *listPtr, char filename[])
 {
 	if (listPtr == NULL)
 	{
-		INVALID_INPUT_PARAMETER;
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (listPtr->head == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
 	}
 	if (filename == NULL)
 	{
-		INVALID_INPUT_PARAMETER;
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (strlen(filename)<1)
+	{
+		return INVALID_INPUT_PARAMETER;
 	}
 
 	FILE *fp;
@@ -321,11 +339,14 @@ int savePlaylist(Playlist *listPtr, char filename[])
 	char delimiter = '#';
 	char newLine = '\n';
 
+	//if the file opens then
 	if (fp != NULL) 
 	{
 		MP3Track *nextTrack = listPtr->head;
+		//while there are mp3 tracks in the playlist
 		while (nextTrack != NULL)
 		{
+			//writes and MP3Track to a file
 			fputs(nextTrack->trackName, fp);
 			fputc(delimiter, fp);
 			fprintf(fp, "%d" ,nextTrack->trackLength);
@@ -336,31 +357,40 @@ int savePlaylist(Playlist *listPtr, char filename[])
 		}
 		fclose(fp);
 	}
+	else
+	{
+		return FILE_IO_ERROR;
+	}
 	return SUCCESS;
 }
 
+//function which creates a playlist from a file.
 int loadPlaylist(Playlist **listPtr, char filename[])
 {
 	if (listPtr == NULL)
 	{
 		return INVALID_INPUT_PARAMETER;
 	}
-
 	//check to see whether pointer is already pointing at something
 	if (*listPtr != NULL)
 	{
 		return INVALID_INPUT_PARAMETER;
 	}
-
 	//allocating memory for new playlist
 	(*listPtr) = (Playlist*)myMalloc(sizeof(Playlist)); 
-
 	//checking for memory failure
 	if ((*listPtr)==NULL)
 	{
 		return MEMORY_ALLOCATION_ERROR;
 	}
-
+	if (filename == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+	if (strlen(filename)<1)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
 	//setting values for playlist
 	(*listPtr)->head = NULL;
 	(*listPtr)->tail = NULL;
@@ -368,12 +398,14 @@ int loadPlaylist(Playlist **listPtr, char filename[])
 
 	FILE *fp;
 	fp = fopen(filename,"r");
+	//if the file opens
 	if (fp!=NULL)
 	{
 		char line[256];
 		char name[50];
 		char length[4];
 
+		//while there are lines in the text file do
 		while(fgets(line, 256, fp) !=NULL)
 		{
 			char delim[] = "#";
@@ -382,10 +414,18 @@ int loadPlaylist(Playlist **listPtr, char filename[])
 			strcpy(name, ptr);
 			ptr = strtok(NULL, delim);
 			strcpy(length, ptr);
+			//converts from string into integer
 			int numLength = atoi(length);
+			//adds to playlist
 			insertAfterCurr((*listPtr),name, numLength);
 			skipNext((*listPtr));
 		}
+		//sets the current position back to the head of the playlist
+		(*listPtr)->curr = (*listPtr)->head;
+	}
+	else
+	{
+		return FILE_IO_ERROR;
 	}
 
 	return SUCCESS;
