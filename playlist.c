@@ -308,9 +308,13 @@ int clearPlaylist(Playlist* listPtr)
 int savePlaylist(Playlist *listPtr, char filename[])
 {
 	if (listPtr == NULL)
+	{
 		INVALID_INPUT_PARAMETER;
+	}
 	if (filename == NULL)
+	{
 		INVALID_INPUT_PARAMETER;
+	}
 
 	FILE *fp;
 	fp = fopen(filename, "w");
@@ -337,8 +341,53 @@ int savePlaylist(Playlist *listPtr, char filename[])
 
 int loadPlaylist(Playlist **listPtr, char filename[])
 {
-	(void)*listPtr;
-	(void)filename;
-	return NOT_IMPLEMENTED;
+	if (listPtr == NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+
+	//check to see whether pointer is already pointing at something
+	if (*listPtr != NULL)
+	{
+		return INVALID_INPUT_PARAMETER;
+	}
+
+	//allocating memory for new playlist
+	(*listPtr) = (Playlist*)myMalloc(sizeof(Playlist)); 
+
+	//checking for memory failure
+	if ((*listPtr)==NULL)
+	{
+		return MEMORY_ALLOCATION_ERROR;
+	}
+
+	//setting values for playlist
+	(*listPtr)->head = NULL;
+	(*listPtr)->tail = NULL;
+	(*listPtr)->curr = NULL;
+
+	FILE *fp;
+	fp = fopen(filename,"r");
+	if (fp!=NULL)
+	{
+		char line[256];
+		char name[50];
+		char length[4];
+
+		while(fgets(line, 256, fp) !=NULL)
+		{
+			char delim[] = "#";
+
+			char *ptr = strtok(line, delim);
+			strcpy(name, ptr);
+			ptr = strtok(NULL, delim);
+			strcpy(length, ptr);
+			int numLength = atoi(length);
+			insertAfterCurr((*listPtr),name, numLength);
+			skipNext((*listPtr));
+		}
+	}
+
+	return SUCCESS;
 }
 
