@@ -367,34 +367,8 @@ int savePlaylist(Playlist *listPtr, char filename[])
 //function which creates a playlist from a file.
 int loadPlaylist(Playlist **listPtr, char filename[])
 {
-	if (listPtr == NULL)
-	{
-		return INVALID_INPUT_PARAMETER;
-	}
-	//check to see whether pointer is already pointing at something
-	if (*listPtr != NULL)
-	{
-		return INVALID_INPUT_PARAMETER;
-	}
-	//allocating memory for new playlist
-	(*listPtr) = (Playlist*)myMalloc(sizeof(Playlist)); 
-	//checking for memory failure
-	if ((*listPtr)==NULL)
-	{
-		return MEMORY_ALLOCATION_ERROR;
-	}
-	if (filename == NULL)
-	{
-		return INVALID_INPUT_PARAMETER;
-	}
-	if (strlen(filename)<1)
-	{
-		return INVALID_INPUT_PARAMETER;
-	}
-	//setting values for playlist
-	(*listPtr)->head = NULL;
-	(*listPtr)->tail = NULL;
-	(*listPtr)->curr = NULL;
+	//create the playlist
+	createPlaylist(listPtr);
 
 	FILE *fp;
 	fp = fopen(filename,"r");
