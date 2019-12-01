@@ -1,2 +1,2 @@
-# Assignment2
-Repo for multiparadigm Assignment 2
+#Music Playlist
+Assignment 2 of Multiparadignm Programming module. Achieved 98%
